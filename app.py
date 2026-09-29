@@ -141,7 +141,7 @@ def product(pid):
     related=enrich(db.get_products(category=p['category']).query("product_id != @pid").head(4))
     return render_template('product.html',p=p,avg=avg or p['rating'],reviews=n,related=related)
 
-@app.post('/cart/add/<pid>')
+@app.route('/cart/add/<pid>', methods=['GET', 'POST'])
 def add_cart(pid):
     p=db.get_product(pid)
     if p:
