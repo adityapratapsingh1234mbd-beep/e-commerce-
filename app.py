@@ -143,10 +143,48 @@ def product(pid):
 
 @app.route('/cart/add/<pid>', methods=['GET', 'POST'])
 def add_cart(pid):
-    p=db.get_product(pid)
-    if p:
-        c=cart_items(); c[pid]=int(c.get(pid,0))+int(request.form.get('qty',1)); session['cart']=c
-    return redirect(request.referrer or url_for('shop'))
+    """Add a product to the session cart.
+
+    Supports both GET and POST so the storefront remains usable even if a
+    browser/proxy follows the product link as a normal GET request.
+    """
+    try:
+        p = db.get_product(pid)
+        if not p:
+            flash('Product not found.')
+            return redirect(url_for('shop'))
+
+        cart = dict(session.get('cart') or {})
+
+        if request.method == 'POST':
+            raw_qty = request.form.get('qty', '1')
+        else:
+            raw_qty = request.args.get('qty', '1')
+
+        try:
+            qty = max(1, min(int(raw_qty), 99))
+        except (TypeError, ValueError):
+            qty = 1
+
+        current = cart.get(pid, 0)
+        try:
+            current = int(current)
+        except (TypeError, ValueError):
+            current = 0
+
+        cart[pid] = min(current + qty, 99)
+        session['cart'] = cart
+        session.modified = True
+        flash(f"{p['product_name']} added to your cart.")
+        return redirect(request.referrer or url_for('cart'))
+
+    except Exception as exc:
+        # Keep the storefront usable even if an unexpected cart/session
+        # problem occurs. The full exception is visible in Render logs.
+        print(f"CART ERROR for {pid}: {exc!r}")
+        session['cart'] = {pid: 1}
+        session.modified = True
+        return redirect(url_for('cart'))
 
 @app.post('/cart/update')
 def update_cart():
