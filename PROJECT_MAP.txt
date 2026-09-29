@@ -1,0 +1,13 @@
+ShopSphere architecture
+
+CUSTOMER EXPERIENCE
+Home -> Shop -> Product -> Wishlist/Cart -> Checkout -> Order -> Account/Orders
+
+BUSINESS INTELLIGENCE
+Sales Overview -> Customer Insights -> Sales Prediction -> Customer Segmentation -> Data Quality
+
+COMPUTATIONAL LAYER
+Pandas/NumPy preprocessing, grouping/aggregation/time-series, regression, multivariate/LDA-ready analysis, PCA, K-Means clustering, model metrics.
+
+DATABASE
+SQLite transactions, customers, products + CSV export.
